@@ -3,10 +3,10 @@ const app = express();
 const port = 8000;
 const products = require('./app/products');
 const cors = require('cors');
-const mongoose= require ('mongoose')
+const mongoose= require('mongoose')
 
 async function start() {
-  await mongoose.connect('mongodb://localhost:270717/shop');
+  await mongoose.connect('mongodb://localhost:27017/shop');
   app.use(cors());
   app.use(express.static('public'));
   app.use(express.json());
