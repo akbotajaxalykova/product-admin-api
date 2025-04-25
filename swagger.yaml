@@ -1,0 +1,97 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  version: 1.0.0
+  description: API для работы с товарами
+servers:
+  - url: http://localhost:8000
+
+paths:
+  /products:
+    get:
+      summary: Получить список всех продуктов
+      responses:
+        "200":
+          description: Список продуктов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+    post:
+      summary: Создать новый продукт
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                price:
+                  type: number
+                description:
+                  type: string
+                image:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Продукт создан
+        "400":
+          description: Ошибка
+
+  /products/{id}:
+    get:
+      summary: Получить продукт по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Продукт найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Не найден
+
+    delete:
+      summary: Удалить продукт по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Удалён
+        "404":
+          description: Не найден
+
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - title
+        - price
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        image:
+          type: string
