@@ -5,6 +5,7 @@ const port = 8000;
 const products = require('./app/products');
 const categories= require('./app/categories');
 const users= require ('./app/users')
+const admin= require('./app/admin')
 const cors = require('cors');
 const mongoose= require('mongoose');
 const {swaggerUi, swaggerDocument}= require('./swagger')
@@ -17,6 +18,7 @@ async function start() {
   app.use('/products', products);
   app.use('/categories', categories);
   app.use('/users', users);
+  app.use('/admin',admin);
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
