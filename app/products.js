@@ -1,11 +1,10 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const nanoid = require("nanoid");
-const multer = require("multer");
-const path = require("path");
-const config = require("../config.js");
-const Product = require("../models/product-model.js");
-const { Construction } = require("@mui/icons-material");
+const nanoid = require('nanoid');
+const multer = require('multer');
+const path = require('path');
+const config = require('../config.js');
+const Product = require('../models/product-model.js');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -18,16 +17,19 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.get("/", async (req, res) => {
+async function listProducts(req, res) {
   try {
-    const results = await Product.find(req.query.category).populate("category","title description");
+    const results = await Product.find({ category: req.query.category }).populate(
+      'category',
+      'title description'
+    );
     res.send(results);
   } catch (error) {
     res.sendStatus(500);
   }
-});
+}
 
-router.get("/:id", async (req, res) => {
+async function getProductById(req, res) {
   try {
     const result = await Product.findById(req.params.id);
     if (result) {
@@ -36,12 +38,12 @@ router.get("/:id", async (req, res) => {
       res.sendStatus(404);
     }
   } catch (error) {
-    console.error("Error fetching product by id:", error);
+    console.error('Error fetching product by id:', error);
     res.sendStatus(500);
   }
-});
+}
 
-router.post("/", upload.single("image"), async (req, res) => {
+async function createProduct(req, res) {
   const productData = req.body;
   if (req.file) {
     productData.image = req.file.filename;
@@ -54,46 +56,53 @@ router.post("/", upload.single("image"), async (req, res) => {
     await product.save();
     res.status(201).send(product);
   } catch (error) {
-    console.error("Creating product failed:", error);
-    res.status(500);
+    console.error('Creating product failed:', error);
+    res.status(500).send(error);
   }
-});
-router.delete("/:id", async (req, res) => {
+}
+
+async function deleteProduct(req, res) {
   try {
-    const deleted = await Product.findByIdAndDelete(req.params.id);
+    const deleted = await Product.findByIdAndDelete({ _id: req.params.id });
     if (deleted) {
-      res.send({ message: "Product deleted successfully" });
+      res.send({ message: 'Product deleted successfully' });
     } else {
       res.sendStatus(404);
     }
   } catch (error) {
-    console.error("Failed to delete product:", error);
+    console.error('Failed to delete product:', error);
     res.sendStatus(500);
   }
-});
+}
 
-router.put("/:id", upload.single('image'), async (req, res) => {
+async function updateProduct(req, res) {
   try {
     const updateData = req.body;
-    const updateProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const updateProduct = await Product.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
     if (!updateProduct) {
       return res.sendStatus(404);
     }
-    res.json({
-      message: "Product updated successfully",
-      product: updateProduct,
-    });
+    res.json({ message: 'Product updated sucessfully', product: updateProduct });
   } catch (error) {
     console.error('Failed to update product', error);
     send.status(500).send(error);
   }
-});
+}
 
-module.exports = router;
+router.get('/', listProducts);
+router.get('/:id', getProductById);
+router.post('/', upload.single('image'), createProduct);
+router.delete('/:id', deleteProduct);
+router.put('/:id', upload.single('image'), updateProduct);
+
+module.exports = {
+  router,
+  listProducts,
+  getProductById,
+  createProduct,
+  deleteProduct,
+  updateProduct,
+};
